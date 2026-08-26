@@ -20,7 +20,7 @@ on:
       # - A map: "{group: \"ubuntu-runners\", labels: \"ubuntu-20.04-16core\"}"
       runner:
         type: string
-        default: '"ubuntu-latest"'
+        default: '"arc-runners"'
       pipelines_drift_detection_filter:
         type: string
         default: ""
