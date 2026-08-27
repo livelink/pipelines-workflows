@@ -189,7 +189,7 @@ jobs:
           if command -v gh &> /dev/null; then
             exit 0
           elif command -v apt-get &> /dev/null; then
-            apt-get update && apt-get install -y gh
+            sudo apt-get update && sudo apt-get install -y gh
           elif command -v apk &> /dev/null; then
             apk add --no-cache github-cli
           else
@@ -316,7 +316,7 @@ jobs:
           if command -v gh &> /dev/null; then
             exit 0
           elif command -v apt-get &> /dev/null; then
-            apt-get update && apt-get install -y gh
+            sudo apt-get update && sudo apt-get install -y gh
           elif command -v apk &> /dev/null; then
             apk add --no-cache github-cli
           else
@@ -559,7 +559,7 @@ jobs:
           if command -v gh &> /dev/null; then
             exit 0
           elif command -v apt-get &> /dev/null; then
-            apt-get update && apt-get install -y gh
+            sudo apt-get update && sudo apt-get install -y gh
           elif command -v apk &> /dev/null; then
             apk add --no-cache github-cli
           else
@@ -718,7 +718,7 @@ jobs:
           if command -v gh &> /dev/null; then
             exit 0
           elif command -v apt-get &> /dev/null; then
-            apt-get update && apt-get install -y gh
+            sudo apt-get update && sudo apt-get install -y gh
           elif command -v apk &> /dev/null; then
             apk add --no-cache github-cli
           else
@@ -861,7 +861,7 @@ jobs:
           if command -v gh &> /dev/null; then
             exit 0
           elif command -v apt-get &> /dev/null; then
-            apt-get update && apt-get install -y gh
+            sudo apt-get update && sudo apt-get install -y gh
           elif command -v apk &> /dev/null; then
             apk add --no-cache github-cli
           else
