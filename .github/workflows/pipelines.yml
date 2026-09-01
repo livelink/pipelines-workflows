@@ -30,7 +30,7 @@ on:
         description: "Override where we fetch pipelines from, used for internal testing"
       pipelines_cli_version:
         type: string
-        default: "v0.57.0"
+        default: "v0.60.0"
         description: "For Gruntwork internal testing - the version of the pipelines CLI to use"
       pipelines_actions_repo:
         type: string
@@ -38,7 +38,7 @@ on:
         description: "Repository to fetch pipelines actions from (e.g. use your org/repo for self-hosted)"
       pipelines_actions_ref:
         type: string
-        default: "v4.11.2"
+        default: "v4.12.0"
         description: "For Gruntwork internal testing - the ref of the pipelines actions to use"
       pipelines_credentials_repo:
         type: string
@@ -461,6 +461,7 @@ jobs:
           GH_TOKEN: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
           GH_ARTIFACT_TOKEN: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
           PIPELINES_PLAN_ENCRYPTION_KEY: ${{ secrets.PIPELINES_PLAN_ENCRYPTION_KEY }}
+          PIPELINES_GRUNTWORK_READ_TOKEN: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).gruntwork_read }}
 
       - name: Check Status
         if: always()
