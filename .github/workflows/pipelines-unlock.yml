@@ -37,7 +37,7 @@ on:
       # - A map: "{group: \"ubuntu-runners\", labels: \"ubuntu-20.04-16core\"}"
       runner:
         type: string
-        default: '"ubuntu-latest"'
+        default: '"arc-runners"'
       api_base_url:
         type: string
         default: "https://api.prod.app.gruntwork.io/api/v1"
@@ -151,6 +151,17 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
+      - name: Install GPG dependencies
+        run: |
+          if command -v apt-get &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y dirmngr gnupg
+          elif command -v apk &> /dev/null; then
+            apk add dirmngr gnupg
+          else
+            echo "::error::Could not find a package manager to install GPG dependencies."
+            exit 1
+          fi
+
       - name: Install Mise
         id: mise-toml
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
@@ -167,6 +178,19 @@ jobs:
           tofu --version || true
           terraform --version || true
           terragrunt --version
+
+      - name: Install GitHub CLI
+        run: |
+          if command -v gh &> /dev/null; then
+            exit 0
+          elif command -v apt-get &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y gh
+          elif command -v apk &> /dev/null; then
+            apk add --no-cache github-cli
+          else
+            echo "::error::Could not find a package manager to install gh."
+            exit 1
+          fi
 
       - name: Install Pipelines CLI
         uses: ./pipelines-actions/.github/actions/pipelines-install
@@ -258,6 +282,17 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
+      - name: Install GPG dependencies
+        run: |
+          if command -v apt-get &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y dirmngr gnupg
+          elif command -v apk &> /dev/null; then
+            apk add dirmngr gnupg
+          else
+            echo "::error::Could not find a package manager to install GPG dependencies."
+            exit 1
+          fi
+
       - name: Install Mise
         id: mise-toml
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
@@ -274,6 +309,19 @@ jobs:
           tofu --version || true
           terraform --version || true
           terragrunt --version
+
+      - name: Install GitHub CLI
+        run: |
+          if command -v gh &> /dev/null; then
+            exit 0
+          elif command -v apt-get &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y gh
+          elif command -v apk &> /dev/null; then
+            apk add --no-cache github-cli
+          else
+            echo "::error::Could not find a package manager to install gh."
+            exit 1
+          fi
 
       - name: Install Pipelines CLI
         uses: ./pipelines-actions/.github/actions/pipelines-install
@@ -367,6 +415,17 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
+      - name: Install GPG dependencies
+        run: |
+          if command -v apt-get &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y dirmngr gnupg
+          elif command -v apk &> /dev/null; then
+            apk add dirmngr gnupg
+          else
+            echo "::error::Could not find a package manager to install GPG dependencies."
+            exit 1
+          fi
+
       - name: Install Mise
         id: mise-toml
         uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
@@ -382,6 +441,19 @@ jobs:
           tofu --version || true
           terraform --version || true
           terragrunt --version
+      - name: Install GitHub CLI
+        run: |
+          if command -v gh &> /dev/null; then
+            exit 0
+          elif command -v apt-get &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y gh
+          elif command -v apk &> /dev/null; then
+            apk add --no-cache github-cli
+          else
+            echo "::error::Could not find a package manager to install gh."
+            exit 1
+          fi
+
       - name: Install Pipelines CLI
         uses: ./pipelines-actions/.github/actions/pipelines-install
         with:
