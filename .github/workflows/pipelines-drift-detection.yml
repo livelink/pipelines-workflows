@@ -163,6 +163,8 @@ jobs:
           cache: true
           version: 2026.10.18
           working_directory: "./infra-live-repo"
+          # Keep mise shims ahead of root-config tool dirs so unit-local mise.toml overrides win.
+          export_path: false
 
       - name: Install GitHub CLI
         run: |
@@ -270,6 +272,8 @@ jobs:
           cache: true
           version: 2026.10.18
           working_directory: "./infra-live-repo"
+          # Keep mise shims ahead of root-config tool dirs so unit-local mise.toml overrides win.
+          export_path: false
 
       - name: Install GitHub CLI
         run: |
