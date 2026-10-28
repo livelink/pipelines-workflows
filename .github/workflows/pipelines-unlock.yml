@@ -170,7 +170,6 @@ jobs:
           cache: true
           version: 2026.11.3
           working_directory: "./infra-live-repo"
-          # Keep shims ahead of tool dirs so per-directory mise.toml versions apply
           export_path: false
 
       - name: Test Terraform, OpenTofu and Terragrunt
@@ -303,7 +302,6 @@ jobs:
           cache: true
           version: 2026.11.3
           working_directory: "./infra-live-repo"
-          # Keep shims ahead of tool dirs so per-directory mise.toml versions apply
           export_path: false
 
       - name: Test Terraform, OpenTofu and Terragrunt
@@ -438,7 +436,6 @@ jobs:
           cache: true
           version: 2026.11.3
           working_directory: "./infra-live-repo"
-          # Keep shims ahead of tool dirs so per-directory mise.toml versions apply
           export_path: false
       - name: Test Terraform, OpenTofu and Terragrunt
         shell: bash
