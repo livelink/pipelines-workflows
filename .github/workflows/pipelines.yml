@@ -220,10 +220,13 @@ jobs:
       # server itself is enabled via TG_PROVIDER_CACHE in `.gruntwork/repository.hcl`.
       # https://terragrunt.gruntwork.io/docs/features/provider-cache-server/
       TG_PROVIDER_CACHE_DIR: ${{ github.workspace }}/.tg-cache/providers
-      # Load the infra-live repo's mise.ci.toml on top of mise.toml (CI-only
-      # tools, e.g. zstd for actions/cache). No-op when the repo has none.
-      # https://mise.jdx.dev/configuration/environments.html
-      MISE_ENV: ci
+      # Only mise shims are on PATH (export_path: false), and a shim resolves its
+      # tool from mise.toml above the current directory. Steps outside
+      # ./infra-live-repo (e.g. actions/cache looking up zstd) find none. Load the
+      # repo's mise.toml as the global config so shims resolve from any directory;
+      # unit-local mise.toml files still take precedence.
+      # https://mise.jdx.dev/configuration.html#global-config-config-mise-config-toml
+      MISE_GLOBAL_CONFIG_FILE: ${{ github.workspace }}/infra-live-repo/mise.toml
     name: ${{ contains(matrix.jobs.Action.Command, 'plan') && 'Plan' || 'Apply' }} - ${{ matrix.jobs.ChangeType }} - ${{ matrix.jobs.WorkingDirectory }}
     needs: [pipelines_orchestrate]
     runs-on: ${{ fromJSON(inputs.runner) }}
@@ -360,19 +363,6 @@ jobs:
         with:
           PIPELINES_GRUNTWORK_READ_TOKEN: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).gruntwork_read }}
           PIPELINES_CUSTOMER_ORG_READ_TOKEN: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
-
-      # actions/cache compresses with zstd when found on PATH, else falls back to
-      # slow single-threaded gzip. Only mise shims are on PATH (export_path: false),
-      # and actions/cache runs outside ./infra-live-repo, where a shim cannot find
-      # mise.toml. Expose zstd's real bin dir instead. No-op when mise does not install it.
-      - name: Expose zstd to actions/cache
-        env:
-          MISE_VERSIONS: ${{ steps.mise-toml.outputs.versions }}
-        run: |
-          install_path=$(jq -r '."conda:zstd"[0].install_path // empty' <<<"$MISE_VERSIONS")
-          if [ -n "$install_path" ]; then
-            echo "$install_path/bin" >> "$GITHUB_PATH"
-          fi
 
       # Persist the Terragrunt Provider Cache Server store across runs. Each unit
       # runs as its own matrix job on a clean runner, so without this every job
