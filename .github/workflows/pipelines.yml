@@ -317,6 +317,19 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
+      # actions/cache picks zstd or gzip when it runs, and the compression is
+      # part of the cache version. Install zstd before the first cache call, so
+      # every restore and save (pipelines-cli, mise, providers, CAS) agrees on
+      # zstd. No cache here: this step would restore before zstd exists.
+      - name: Install zstd
+        uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
+        with:
+          install_args: conda:zstd
+          cache: false
+          version: 2026.10.18
+          working_directory: "./infra-live-repo"
+          export_path: false
+
       - name: Install GitHub CLI
         run: |
           if command -v gh &> /dev/null; then
@@ -455,6 +468,8 @@ jobs:
     if: always()
     env:
       JOB_NAME: "Pipelines Status Check"
+      # See pipelines_execute.
+      MISE_GLOBAL_CONFIG_FILE: ${{ github.workspace }}/infra-live-repo/mise.toml
     steps:
       - name: Record workflow env vars
         env:
@@ -500,6 +515,19 @@ jobs:
         with:
           path: infra-live-repo
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
+
+      # actions/cache picks zstd or gzip when it runs, and the compression is
+      # part of the cache version. Install zstd before the first cache call, so
+      # every restore and save (pipelines-cli, mise, providers, CAS) agrees on
+      # zstd. No cache here: this step would restore before zstd exists.
+      - name: Install zstd
+        uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
+        with:
+          install_args: conda:zstd
+          cache: false
+          version: 2026.10.18
+          working_directory: "./infra-live-repo"
+          export_path: false
 
       - name: Install GitHub CLI
         run: |
