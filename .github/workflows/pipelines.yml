@@ -370,6 +370,7 @@ jobs:
       # `.terraform.lock.hcl` files; `restore-keys` gives a warm partial hit on a
       # provider-version bump. https://terragrunt.gruntwork.io/docs/features/provider-cache-server/
       - name: Cache Terraform providers
+        id: providers-cache
         uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: ${{ github.workspace }}/.tg-cache/providers
@@ -419,6 +420,25 @@ jobs:
           extended_log_file_path: ${{ steps.terragrunt.outputs.execute_stdout_log }}
           pipelines_report_file_path: ${{ steps.terragrunt.outputs.pipelines_report_file_path }}
           job_name: ${{ env.JOB_NAME }}
+
+      # `restore-keys` restores the previous store on a provider-version bump, so
+      # without pruning every superseded version is re-saved under the new key
+      # forever. Before the `Cache Terraform providers` post step saves a new key,
+      # drop every <host>/<namespace>/<type>/<version> directory that no committed
+      # `.terraform.lock.hcl` references. Skipped on an exact hit (nothing is saved).
+      - name: Prune unreferenced Terraform providers
+        if: always() && steps.providers-cache.outputs.cache-hit != 'true'
+        working-directory: ./infra-live-repo
+        run: |
+          [ -d "$TG_PROVIDER_CACHE_DIR" ] || exit 0
+          keep=$(mktemp)
+          git ls-files -z '*.terraform.lock.hcl' \
+            | xargs -0 awk '/^provider "/ { gsub(/"/, "", $2); p = $2 } /^  version / { gsub(/"/, "", $3); print p "/" $3 }' \
+            | sort -u >"$keep"
+          find "$TG_PROVIDER_CACHE_DIR" -mindepth 4 -maxdepth 4 -type d | while read -r dir; do
+            grep -qxF "${dir#"$TG_PROVIDER_CACHE_DIR"/}" "$keep" || rm -rf "$dir"
+          done
+          du -sh "$TG_PROVIDER_CACHE_DIR"
 
     outputs:
       account_id: ${{ matrix.jobs.AccountId }}
