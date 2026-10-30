@@ -220,6 +220,13 @@ jobs:
       # server itself is enabled via TG_PROVIDER_CACHE in `.gruntwork/repository.hcl`.
       # https://terragrunt.gruntwork.io/docs/features/provider-cache-server/
       TG_PROVIDER_CACHE_DIR: ${{ github.workspace }}/.tg-cache/providers
+      # Only mise shims are on PATH (export_path: false), and a shim resolves its
+      # tool from mise.toml above the current directory. Steps outside
+      # ./infra-live-repo (e.g. actions/cache looking up zstd) find none. Load the
+      # repo's mise.toml as the global config so shims resolve from any directory;
+      # unit-local mise.toml files still take precedence.
+      # https://mise.jdx.dev/configuration.html#global-config-config-mise-config-toml
+      MISE_GLOBAL_CONFIG_FILE: ${{ github.workspace }}/infra-live-repo/mise.toml
     name: ${{ contains(matrix.jobs.Action.Command, 'plan') && 'Plan' || 'Apply' }} - ${{ matrix.jobs.ChangeType }} - ${{ matrix.jobs.WorkingDirectory }}
     needs: [pipelines_orchestrate]
     runs-on: ${{ fromJSON(inputs.runner) }}
@@ -310,6 +317,19 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
+      # actions/cache picks zstd or gzip when it runs, and the compression is
+      # part of the cache version. Install zstd before the first cache call, so
+      # every restore and save (pipelines-cli, mise, providers, CAS) agrees on
+      # zstd. No cache here: this step would restore before zstd exists.
+      - name: Install zstd
+        uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
+        with:
+          install_args: conda:zstd
+          cache: false
+          version: 2026.10.18
+          working_directory: "./infra-live-repo"
+          export_path: false
+
       - name: Install GitHub CLI
         run: |
           if command -v gh &> /dev/null; then
@@ -363,6 +383,7 @@ jobs:
       # `.terraform.lock.hcl` files; `restore-keys` gives a warm partial hit on a
       # provider-version bump. https://terragrunt.gruntwork.io/docs/features/provider-cache-server/
       - name: Cache Terraform providers
+        id: providers-cache
         uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         with:
           path: ${{ github.workspace }}/.tg-cache/providers
@@ -413,6 +434,25 @@ jobs:
           pipelines_report_file_path: ${{ steps.terragrunt.outputs.pipelines_report_file_path }}
           job_name: ${{ env.JOB_NAME }}
 
+      # `restore-keys` restores the previous store on a provider-version bump, so
+      # without pruning every superseded version is re-saved under the new key
+      # forever. Before the `Cache Terraform providers` post step saves a new key,
+      # drop every <host>/<namespace>/<type>/<version> directory that no committed
+      # `.terraform.lock.hcl` references. Skipped on an exact hit (nothing is saved).
+      - name: Prune unreferenced Terraform providers
+        if: always() && steps.providers-cache.outputs.cache-hit != 'true'
+        working-directory: ./infra-live-repo
+        run: |
+          [ -d "$TG_PROVIDER_CACHE_DIR" ] || exit 0
+          keep=$(mktemp)
+          git ls-files -z '*.terraform.lock.hcl' \
+            | xargs -0 awk '/^provider "/ { gsub(/"/, "", $2); p = $2 } /^  version / { gsub(/"/, "", $3); print p "/" $3 }' \
+            | sort -u >"$keep"
+          find "$TG_PROVIDER_CACHE_DIR" -mindepth 4 -maxdepth 4 -type d | while read -r dir; do
+            grep -qxF "${dir#"$TG_PROVIDER_CACHE_DIR"/}" "$keep" || rm -rf "$dir"
+          done
+          du -sh "$TG_PROVIDER_CACHE_DIR"
+
     outputs:
       account_id: ${{ matrix.jobs.AccountId }}
       branch: ${{ matrix.jobs.Ref }}
@@ -428,6 +468,8 @@ jobs:
     if: always()
     env:
       JOB_NAME: "Pipelines Status Check"
+      # See pipelines_execute.
+      MISE_GLOBAL_CONFIG_FILE: ${{ github.workspace }}/infra-live-repo/mise.toml
     steps:
       - name: Record workflow env vars
         env:
@@ -473,6 +515,19 @@ jobs:
         with:
           path: infra-live-repo
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
+
+      # actions/cache picks zstd or gzip when it runs, and the compression is
+      # part of the cache version. Install zstd before the first cache call, so
+      # every restore and save (pipelines-cli, mise, providers, CAS) agrees on
+      # zstd. No cache here: this step would restore before zstd exists.
+      - name: Install zstd
+        uses: jdx/mise-action@8418fedb1110381a0d3ba51a7a415d7c1b884550 # v5.2.2
+        with:
+          install_args: conda:zstd
+          cache: false
+          version: 2026.10.18
+          working_directory: "./infra-live-repo"
+          export_path: false
 
       - name: Install GitHub CLI
         run: |
