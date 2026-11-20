@@ -182,6 +182,19 @@ jobs:
           PIPELINES_GRUNTWORK_READ_TOKEN: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).gruntwork_read }}
           PIPELINES_CUSTOMER_ORG_READ_TOKEN: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
+      # pipelines-preflight-action runs its own cached mise-action; same zstd shim
+      # problem as described in pipelines_execute.
+      - name: Install mise (zstd bootstrap)
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+        with:
+          install: false
+          cache: false
+          version: 2026.11.3
+          export_path: false
+
+      - name: Pin zstd globally
+        run: mise use -g conda:zstd@1.5.7
+
       - name: Preflight Checks
         id: preflight
         uses: ./pipelines-actions/.github/actions/pipelines-preflight-action
