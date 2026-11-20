@@ -340,6 +340,20 @@ jobs:
             exit 1
           fi
 
+      # actions/cache runs tar from the runner temp folder, outside the repo, where a
+      # project-only zstd shim has no version and fails. Pin zstd globally before the
+      # cached mise install, so every cache restore and save resolves zstd.
+      - name: Install mise (zstd bootstrap)
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+        with:
+          install: false
+          cache: false
+          version: 2026.11.3
+          export_path: false
+
+      - name: Pin zstd globally
+        run: mise use -g conda:zstd@1.5.7
+
       - name: Install Mise
         id: mise-toml
         uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
@@ -502,6 +516,20 @@ jobs:
             echo "::error::Could not find a package manager to install GPG dependencies."
             exit 1
           fi
+
+      # actions/cache runs tar from the runner temp folder, outside the repo, where a
+      # project-only zstd shim has no version and fails. Pin zstd globally before the
+      # cached mise install, so every cache restore and save resolves zstd.
+      - name: Install mise (zstd bootstrap)
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+        with:
+          install: false
+          cache: false
+          version: 2026.11.3
+          export_path: false
+
+      - name: Pin zstd globally
+        run: mise use -g conda:zstd@1.5.7
 
       - name: Install Mise
         id: mise-toml
