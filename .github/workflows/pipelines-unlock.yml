@@ -77,6 +77,10 @@ on:
         required: true
 
 env:
+  # Install only the infra-live repo's CI tool set: mise.toml + mise.ci.toml.
+  # https://mise.jdx.dev/configuration/environments.html
+  MISE_ENV: ci
+
   PIPELINES_CLI_VERSION: ${{ inputs.pipelines_cli_version }}
   PIPELINES_ACTIONS_REPO: ${{ inputs.pipelines_actions_repo }}
   PIPELINES_ACTIONS_REF: ${{ inputs.pipelines_actions_ref }}
@@ -151,35 +155,29 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      - name: Install GitHub CLI
-        run: |
-          if command -v gh &> /dev/null; then
-            exit 0
-          elif command -v apt-get &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y gh
-          elif command -v apk &> /dev/null; then
-            apk add --no-cache github-cli
-          else
-            echo "::error::Could not find a package manager to install gh."
-            exit 1
-          fi
+      # The runner image ships no `gh`, and apt from the Ubuntu archive can take
+      # minutes over the ARC egress (livelink/dice-environments#5817). Install
+      # `gh` from GitHub releases and `zstd` from conda through mise instead.
+      # Global, because `pipelines-install` runs `gh` outside infra-live-repo and
+      # `actions/cache` runs `tar` from the runner temp folder, where a
+      # project-only shim has no version.
+      - name: Install mise
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+        with:
+          install: false
+          cache: false
+          version: 2026.11.3
+          export_path: false
+
+      - name: Install global tools
+        timeout-minutes: 5
+        run: mise use -g conda:zstd@1.5.7 gh@2.90.0
 
       - name: Install Pipelines CLI
         uses: ./pipelines-actions/.github/actions/pipelines-install
         with:
           version: ${{ env.PIPELINES_CLI_VERSION }}
           PIPELINES_GRUNTWORK_READ_TOKEN: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).gruntwork_read }}
-
-      - name: Install GPG dependencies
-        run: |
-          if command -v apt-get &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y dirmngr gnupg
-          elif command -v apk &> /dev/null; then
-            apk add dirmngr gnupg
-          else
-            echo "::error::Could not find a package manager to install GPG dependencies."
-            exit 1
-          fi
 
       - name: Install Mise
         id: mise-toml
@@ -283,35 +281,29 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      - name: Install GitHub CLI
-        run: |
-          if command -v gh &> /dev/null; then
-            exit 0
-          elif command -v apt-get &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y gh
-          elif command -v apk &> /dev/null; then
-            apk add --no-cache github-cli
-          else
-            echo "::error::Could not find a package manager to install gh."
-            exit 1
-          fi
+      # The runner image ships no `gh`, and apt from the Ubuntu archive can take
+      # minutes over the ARC egress (livelink/dice-environments#5817). Install
+      # `gh` from GitHub releases and `zstd` from conda through mise instead.
+      # Global, because `pipelines-install` runs `gh` outside infra-live-repo and
+      # `actions/cache` runs `tar` from the runner temp folder, where a
+      # project-only shim has no version.
+      - name: Install mise
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+        with:
+          install: false
+          cache: false
+          version: 2026.11.3
+          export_path: false
+
+      - name: Install global tools
+        timeout-minutes: 5
+        run: mise use -g conda:zstd@1.5.7 gh@2.90.0
 
       - name: Install Pipelines CLI
         uses: ./pipelines-actions/.github/actions/pipelines-install
         with:
           version: ${{ env.PIPELINES_CLI_VERSION }}
           PIPELINES_GRUNTWORK_READ_TOKEN: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).gruntwork_read }}
-
-      - name: Install GPG dependencies
-        run: |
-          if command -v apt-get &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y dirmngr gnupg
-          elif command -v apk &> /dev/null; then
-            apk add dirmngr gnupg
-          else
-            echo "::error::Could not find a package manager to install GPG dependencies."
-            exit 1
-          fi
 
       - name: Install Mise
         id: mise-toml
@@ -419,35 +411,29 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      - name: Install GitHub CLI
-        run: |
-          if command -v gh &> /dev/null; then
-            exit 0
-          elif command -v apt-get &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y gh
-          elif command -v apk &> /dev/null; then
-            apk add --no-cache github-cli
-          else
-            echo "::error::Could not find a package manager to install gh."
-            exit 1
-          fi
+      # The runner image ships no `gh`, and apt from the Ubuntu archive can take
+      # minutes over the ARC egress (livelink/dice-environments#5817). Install
+      # `gh` from GitHub releases and `zstd` from conda through mise instead.
+      # Global, because `pipelines-install` runs `gh` outside infra-live-repo and
+      # `actions/cache` runs `tar` from the runner temp folder, where a
+      # project-only shim has no version.
+      - name: Install mise
+        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
+        with:
+          install: false
+          cache: false
+          version: 2026.11.3
+          export_path: false
+
+      - name: Install global tools
+        timeout-minutes: 5
+        run: mise use -g conda:zstd@1.5.7 gh@2.90.0
 
       - name: Install Pipelines CLI
         uses: ./pipelines-actions/.github/actions/pipelines-install
         with:
           version: ${{ env.PIPELINES_CLI_VERSION }}
           PIPELINES_GRUNTWORK_READ_TOKEN: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).gruntwork_read }}
-
-      - name: Install GPG dependencies
-        run: |
-          if command -v apt-get &> /dev/null; then
-            sudo apt-get update && sudo apt-get install -y dirmngr gnupg
-          elif command -v apk &> /dev/null; then
-            apk add dirmngr gnupg
-          else
-            echo "::error::Could not find a package manager to install GPG dependencies."
-            exit 1
-          fi
 
       - name: Install Mise
         id: mise-toml
