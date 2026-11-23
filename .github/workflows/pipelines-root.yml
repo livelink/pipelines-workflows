@@ -74,7 +74,7 @@ on:
         required: true
 
 env:
-  # Install only the infra-live repo's CI tool set: mise.toml + mise.ci.toml.
+  # Load the infra-live repo's mise.ci.toml (CI-only tools) on top of mise.toml.
   # https://mise.jdx.dev/configuration/environments.html
   MISE_ENV: ci
 
