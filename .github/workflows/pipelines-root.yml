@@ -74,7 +74,7 @@ on:
         required: true
 
 env:
-  # Load the infra-live repo's mise.ci.toml (CI-only tools) on top of mise.toml.
+  # mise.toml + mise.ci.toml.
   # https://mise.jdx.dev/configuration/environments.html
   MISE_ENV: ci
 
@@ -188,12 +188,6 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      # The runner image ships no `gh`, and apt from the Ubuntu archive can take
-      # minutes over the ARC egress (livelink/dice-environments#5817). Install
-      # `gh` from GitHub releases and `zstd` from conda through mise instead.
-      # Global, because `pipelines-install` runs `gh` outside infra-live-repo and
-      # `actions/cache` runs `tar` from the runner temp folder, where a
-      # project-only shim has no version.
       - name: Install mise
         uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
@@ -202,7 +196,7 @@ jobs:
           version: 2026.11.3
           export_path: false
 
-      - name: Install global tools
+      - name: Use mise tools globally
         timeout-minutes: 5
         run: mise use -g conda:zstd@1.5.7 gh@2.90.0
 
@@ -320,12 +314,6 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      # The runner image ships no `gh`, and apt from the Ubuntu archive can take
-      # minutes over the ARC egress (livelink/dice-environments#5817). Install
-      # `gh` from GitHub releases and `zstd` from conda through mise instead.
-      # Global, because `pipelines-install` runs `gh` outside infra-live-repo and
-      # `actions/cache` runs `tar` from the runner temp folder, where a
-      # project-only shim has no version.
       - name: Install mise
         uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
@@ -334,7 +322,7 @@ jobs:
           version: 2026.11.3
           export_path: false
 
-      - name: Install global tools
+      - name: Use mise tools globally
         timeout-minutes: 5
         run: mise use -g conda:zstd@1.5.7 gh@2.90.0
 
@@ -565,12 +553,6 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      # The runner image ships no `gh`, and apt from the Ubuntu archive can take
-      # minutes over the ARC egress (livelink/dice-environments#5817). Install
-      # `gh` from GitHub releases and `zstd` from conda through mise instead.
-      # Global, because `pipelines-install` runs `gh` outside infra-live-repo and
-      # `actions/cache` runs `tar` from the runner temp folder, where a
-      # project-only shim has no version.
       - name: Install mise
         uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
@@ -579,7 +561,7 @@ jobs:
           version: 2026.11.3
           export_path: false
 
-      - name: Install global tools
+      - name: Use mise tools globally
         timeout-minutes: 5
         run: mise use -g conda:zstd@1.5.7 gh@2.90.0
 
@@ -719,12 +701,6 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      # The runner image ships no `gh`, and apt from the Ubuntu archive can take
-      # minutes over the ARC egress (livelink/dice-environments#5817). Install
-      # `gh` from GitHub releases and `zstd` from conda through mise instead.
-      # Global, because `pipelines-install` runs `gh` outside infra-live-repo and
-      # `actions/cache` runs `tar` from the runner temp folder, where a
-      # project-only shim has no version.
       - name: Install mise
         uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
@@ -733,7 +709,7 @@ jobs:
           version: 2026.11.3
           export_path: false
 
-      - name: Install global tools
+      - name: Use mise tools globally
         timeout-minutes: 5
         run: mise use -g conda:zstd@1.5.7 gh@2.90.0
 
@@ -869,12 +845,6 @@ jobs:
           path: infra-live-repo
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      # The runner image ships no `gh`, and apt from the Ubuntu archive can take
-      # minutes over the ARC egress (livelink/dice-environments#5817). Install
-      # `gh` from GitHub releases and `zstd` from conda through mise instead.
-      # Global, because `pipelines-install` runs `gh` outside infra-live-repo and
-      # `actions/cache` runs `tar` from the runner temp folder, where a
-      # project-only shim has no version.
       - name: Install mise
         uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
@@ -883,7 +853,7 @@ jobs:
           version: 2026.11.3
           export_path: false
 
-      - name: Install global tools
+      - name: Use mise tools globally
         timeout-minutes: 5
         run: mise use -g conda:zstd@1.5.7 gh@2.90.0
 
