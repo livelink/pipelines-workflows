@@ -188,7 +188,8 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      - name: Install mise
+      - &install-mise
+        name: Install mise
         uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
         with:
           install: false
@@ -196,7 +197,9 @@ jobs:
           version: 2026.11.3
           export_path: false
 
-      - name: Use mise tools globally
+      # Keep in sync with livelink/dice-environments: gh in mise.toml, zstd in mise.ci.toml.
+      - &use-mise-tools
+        name: Use mise tools globally
         timeout-minutes: 5
         run: mise use -g conda:zstd@1.5.7 gh@2.90.0
 
@@ -314,17 +317,9 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      - name: Install mise
-        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
-        with:
-          install: false
-          cache: false
-          version: 2026.11.3
-          export_path: false
+      - *install-mise
 
-      - name: Use mise tools globally
-        timeout-minutes: 5
-        run: mise use -g conda:zstd@1.5.7 gh@2.90.0
+      - *use-mise-tools
 
       - name: Install Pipelines CLI
         uses: ./pipelines-actions/.github/actions/pipelines-install
@@ -553,17 +548,9 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      - name: Install mise
-        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
-        with:
-          install: false
-          cache: false
-          version: 2026.11.3
-          export_path: false
+      - *install-mise
 
-      - name: Use mise tools globally
-        timeout-minutes: 5
-        run: mise use -g conda:zstd@1.5.7 gh@2.90.0
+      - *use-mise-tools
 
       - name: Install Pipelines CLI
         uses: ./pipelines-actions/.github/actions/pipelines-install
@@ -701,17 +688,9 @@ jobs:
           fetch-depth: 0
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      - name: Install mise
-        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
-        with:
-          install: false
-          cache: false
-          version: 2026.11.3
-          export_path: false
+      - *install-mise
 
-      - name: Use mise tools globally
-        timeout-minutes: 5
-        run: mise use -g conda:zstd@1.5.7 gh@2.90.0
+      - *use-mise-tools
 
       - name: Install Pipelines CLI
         uses: ./pipelines-actions/.github/actions/pipelines-install
@@ -845,17 +824,9 @@ jobs:
           path: infra-live-repo
           token: ${{ fromJson(steps.pipelines-tokens.outputs.tokens_json).customer_org_read }}
 
-      - name: Install mise
-        uses: jdx/mise-action@b44d12e7d0d8ee7461bb893e1b1993500433185b # v5.2.7
-        with:
-          install: false
-          cache: false
-          version: 2026.11.3
-          export_path: false
+      - *install-mise
 
-      - name: Use mise tools globally
-        timeout-minutes: 5
-        run: mise use -g conda:zstd@1.5.7 gh@2.90.0
+      - *use-mise-tools
 
       - name: Install Pipelines CLI
         uses: ./pipelines-actions/.github/actions/pipelines-install
